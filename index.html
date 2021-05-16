@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.24.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script type="text/javascript">
+         //Bucket Configurations
+         var bucketName = 'replacestring-1';
+         var bucketName2 = 'replacedstring';
+         var bucketRegion = 'ap-south-1';
+         var IdentityPoolId = 'ap-south-1:ee689b6f-de8e-4dbc-911b-69c377966e5d';
+         
+          AWS.config.update({
+                         region: bucketRegion,
+                         credentials: new AWS.CognitoIdentityCredentials({
+                             IdentityPoolId: IdentityPoolId
+                         })
+                     });
+         
+                     var s3 = new AWS.S3({
+                         apiVersion: '2006-03-01',
+                         params: {Bucket: bucketName}
+                 });
+      </script>
+		<script type="text/javascript">
+         var fileName = '';
+         function s3upload() {
+            var files = document.getElementById('fileUpload').files;
+            if (files) 
+            {
+              var file = files[0];
+              fileName = file.name;
+	      localStorage.setItem("fileName", fileName);
+              var filePath = fileName;
+              var fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' +  filePath;
+              s3.upload({
+                 Key: filePath,
+                 Body: file,  
+                 ACL: 'public-read'
+                 }, function(err, data) {
+                 if(err) {
+                 alert('Upload failed',err);
+                 }
+                 alert(fileName);
+                 }).on('httpUploadProgress', function (progress) {
+                 var uploaded = parseInt((progress.loaded * 100) / progress.total);
+                 $("progress").attr('value', uploaded);
+               });
+            }
+         };
+         
+         function Convert() {
+           var str = document.getElementById("fname").value; 
+           var str1 = document.getElementById("fname").value; 
+           var res = '';
+           if(str.includes("Microsoft")){str = str.replace("Microsoft", "Microsoft©"); }
+           if(str.includes("Amazon")){str = str.replace("Amazon", "Amazon©"); }
+           if(str.includes("Oracle")){str = str.replace("Oracle", "Oracle©"); }
+           if(str.includes("Deloitte")){str = str.replace("Deloitte", "Deloitte©"); }
+           if(str.includes("Google")){str = str.replace("Google", "Google©"); }
+           document.getElementById("entered").innerHTML = str1;
+           document.getElementById("demo").innerHTML = str;
+         }	
+     function s3download() {
+
+	var filePath = fileName;
+     var fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' +  filePath;
+     s3.getObject({
+        Key: fileName,
+	Bucket: bucketName2
+        }, function(err, data) {
+        if(err) {
+        alert('Download failed',err);
+        }
+	else console.log(data);
+        alert(fileName);
+        });
+   
+	}	
+      </script>
+			<title>Hello World!</title>
+		</head>
+		<body>
+				<h1>The input element</h1>
+				<label for="fname">String to replace:</label>
+				<input type="text" id="fname" name="fname">
+					<br>
+						<br>
+							<p id="entered"></p>
+							<p id="demo"></p>
+							<button onclick="Convert()">Convert</button>
+							<br>
+							
+								<br>
+									<br>
+
+		<div>
+				<label for="fileUpload">Pleace choose a file to convert input strings</label><br>
+				<input type="file" id="fileUpload">
+				</div><br>
+				<div>
+					<button onclick="s3upload()">Submit</button>
+				</div>
+				<br>
+	
+      Link to 
+      
+										<script>
+         var loc = "https://replacedstring.s3.ap-south-1.amazonaws.com/"+localStorage.getItem("fileName");;
+         document.write('<a href="' + loc + '">Veiw</a>');
+      
+										</script>
+									</body>
+								</html>
